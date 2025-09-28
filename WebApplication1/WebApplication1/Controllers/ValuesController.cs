@@ -5,29 +5,48 @@ namespace WebApplication1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class ValueController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
+        [ApiController]
+        [Route("api/[controller]")]
+        public class LoginController : ControllerBase
         {
-            "A", "B", "C", "C", "D", "E", "F", "G", "H", "I"
-        };
-
-        private readonly ILogger<ValuesController> _logger;
-        public ValuesController(ILogger<ValuesController> logger)
-        {
-            _logger = logger;
-        }
-
-        [HttpGet(Name = "GetValuesForecast")]
-        public IEnumerable<WeatherForecast> Get()
-        {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            // 模擬使用者登入的模型
+            public class LoginRequest
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                public string Name { get; set; } = string.Empty;
+            }
+
+            private readonly ILogger<LoginController> _logger;
+
+            public LoginController(ILogger<LoginController> logger)
+            {
+                _logger = logger;
+            }
+
+            // POST: api/login/postname
+            [HttpPost("postname")]
+            public IActionResult PostName([FromBody] LoginRequest request)
+            {
+                if (string.IsNullOrWhiteSpace(request.Name))
+                {
+                    return BadRequest(new { Message = "請輸入姓名" });
+                }
+
+                return Ok(new { Message = $"登入成功，歡迎 {request.Name}！" });
+            }
+
+            // GET: api/login/hello?name=Tom
+            [HttpGet("hello")]
+            public IActionResult Hello([FromQuery] string name)
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return BadRequest(new { Message = "請輸入姓名" });
+                }
+
+                return Ok(new { Message = $"Hello, {name}!" });
+            }
         }
     }
 }
